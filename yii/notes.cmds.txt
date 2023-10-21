@@ -1,0 +1,39 @@
+
+Yii Installation :
+-----------------
+
+composer create-project --prefer-dist yiisoft/yii2-app-basic yii
+composer create-project --prefer-dist --stability=dev yiisoft/app projName
+
+
+
+
+Migration:
+
+php yii migrate/create create_news_table
+php yii migrate
+php yii migrate/create drop_news_table
+
+
+php yii migrate/create create_post_table --fields="author_id:integer:notNull:foreignKey(user),category_id:integer:defaultValue(1):foreignKey,title:string,body:text"
+
+
+yii migrate/down
+yii migrate/down 3
+
+yii migrate/redo        # redo the last applied migration
+yii migrate/redo 3
+
+yii migrate/fresh       # truncate the database and apply all migrations from the beginning
+
+
+yii migrate/history     # showing the last 10 applied migrations
+yii migrate/history 5   # showing the last 5 applied migrations
+yii migrate/history all # showing all applied migrations
+
+yii migrate/new         # showing the first 10 new migrations
+yii migrate/new 5       # showing the first 5 new migrations
+yii migrate/new all     # showing all new migrations
+
+
+
