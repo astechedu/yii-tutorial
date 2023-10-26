@@ -12,7 +12,7 @@ class m231021_110706_create_posts_table extends Migration
      */
     public function safeUp()
     {
-        $this->createTable('posts', [
+        $this->createTable('{{%posts}}', [
             'id' => $this->primaryKey(),
             'title' => $this->string()->notNull(),
             'content' => $this->text(),
