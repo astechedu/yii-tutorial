@@ -6,6 +6,14 @@ composer create-project --prefer-dist yiisoft/yii2-app-basic yii
 composer create-project --prefer-dist --stability=dev yiisoft/app projName
 
 
+--------------------------------------------------------------------------------
+
+Naming Conventions: 
+
+Model: User,  Table: user (Singular)
+Model: Post,  Table: post (Singular)
+
+--------------------------------------------------------------------------------
 
 Migration:
 ---------
@@ -14,7 +22,7 @@ Migration:
 	2. Apply new migrations
 	3. Revert migrations
 	4. Re-apply migrations
-    5. Show migration history or status
+   5. Show migration history or status
 
 
 php yii migrate/create create_news_table
@@ -51,7 +59,7 @@ yii migrate --db=db2
 
 
 >> AddColumn
-yii migrate/create add_position_column_to_post_table --fields="name:string"
+yii migrate/create add_name_column_to_post_table --fields="name:string"
 yii migrate/create add_position_column_to_post_table --fields="position:integer"
 
 >> DropTable
@@ -68,6 +76,7 @@ public function down(){}
 //Implement safeUp/safeDown instead if transaction is needed
 public function safeUp(){}
 public function safeDown(){}
+
 
 -------------------------------------------------------------------------------
 
@@ -118,6 +127,113 @@ public function run() {
 
 
 -----------------------------------------------------------------
+
+
+
+>> Add Column();
+
+php yii migrate/create add_position_column_to_post_table --fields="position:integer"
+
+
+
+>>>> Delete Column();
+
+php yii migrate/create drop_position_column_from_post_table --fields="position:integer"
+
+
+
+
+>> Transactional Migrations:
+
+public function safeUp(){
+	
+}
+
+public function safeDown(){
+	
+}
+
+
+---------------------------------------------------------
+
+>> Faker Factory:
+
+
+//Controller
+
+$faker = \Faker\Factory::create()
+
+
+$faker->name
+$faker->username
+$faker->firstName
+$faker->lastName
+$faker->email
+
+
+
+-----------------------------------------------------------
+
+
+>> Seeding Database using third party tool
+
+compoer require tebazil/yii2-db-seeder
+
+OR   
+
+"tebazil/yii2-db-seeder":"*"
+
+
+
+
+File: 
+
+$seeder = new \tebazil\yii2seeder\Seeder();
+$generator = $seeder->getGeneratorConfigurator();
+$faker = $generator->getFakerConfigurator();
+
+
+$seeder->table('articla')->columns([
+   'id', //automatic pk
+   'book_id', //automatic fk
+   'name' => $faker->firstName,
+   'content' => $faker->text
+   ])->rowQuantity(30);
+
+
+
+$seeder->table('book')->columns([
+   'id',   
+   'name' => $faker->text(20),
+   'content' => $faker->text
+   ])->rowQuantity(30);
+
+
+
+$seeder->table('category')->columns([
+   'id',   
+   'book_id',
+   'name' => $faker->text(20),
+   'type' => $faker->randomElement(['shop','cv','test'])
+   ])->rowQuantity(30);
+
+$seeder->refill();
+
+
+
+------------------------------------------------------------
+
+
+$model->post
+$model->comments
+$model->author
+$model->members
+
+
+----------------------------------------------------------------
+
+
+
 
 
 
