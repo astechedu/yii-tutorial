@@ -1,0 +1,283 @@
+
+Yii Installation :
+-----------------
+
+composer create-project --prefer-dist yiisoft/yii2-app-basic yii
+composer create-project --prefer-dist --stability=dev yiisoft/app projName
+
+
+
+Migration:
+---------
+
+	1. Create new migrtions
+	2. Apply new migrations
+	3. Revert migrations
+	4. Re-apply migrations
+    5. Show migration history or status
+
+
+php yii migrate/create create_news_table
+php yii migrate
+php yii migrate/create drop_news_table
+
+
+php yii migrate/create create_post_table --fields="author_id:integer:notNull:foreignKey(user),category_id:integer:defaultValue(1):foreignKey,title:string,body:text"
+
+
+yii migrate/down
+yii migrate/down 3
+
+yii migrate/redo        # redo the last applied migration
+yii migrate/redo 3
+
+yii migrate/fresh       # truncate the database and apply all migrations from the beginning
+
+
+yii migrate/history     # showing the last 10 applied migrations
+yii migrate/history 5   # showing the last 5 applied migrations
+yii migrate/history all # showing all applied migrations
+
+yii migrate/new         # showing the first 10 new migrations
+yii migrate/new 5       # showing the first 5 new migrations
+yii migrate/new all     # showing all new migrations
+
+
+yii migrate/fresh
+
+
+//Migrate Multiple Databases
+yii migrate --db=db2
+
+
+>> AddColumn
+yii migrate/create add_position_column_to_post_table --fields="name:string"
+yii migrate/create add_position_column_to_post_table --fields="position:integer"
+
+>> DropTable
+yii migrate/create drop_post_table --fields="title:string(12):notNull:unique,body:text:"
+
+
+------------------------------------------------------------------------------
+
+
+public function up(){}
+public function down(){}
+
+
+//Implement safeUp/safeDown instead if transaction is needed
+public function safeUp(){}
+public function safeDown(){}
+
+-------------------------------------------------------------------------------
+
+Example 01: 
+
+public function run() {
+	$this->createTable('place', [
+		'id' => $this->primaryKey()->unsigned()->notNull(),
+		'place_id' => $this->string(40)->notNull(),
+		'lat' => $this->string(40)->notNull(),
+		'lng' => $this->string(40)->notNull(),
+		'country_code' => $this->string(2)->notNull(),
+        'is_country' => $this->tinyInteger(4)->notNull(),
+	]);	
+}
+
+------------
+
+Example 02: 
+
+public function run() {
+	$this->createTable('place', [
+		'id' => $this->primaryKey(),
+		'title' => $this->string(),
+		'body' => $this->text(),
+		]);	
+}
+----------------------------------------------------------------
+
+
+>> Database Seeding : 
+   ................ 
+
+
+
+1. 
+
+
+// commands/SeedController.php
+namespace app\commands;
+
+use yii\console\Controller;
+use app\models\Users;
+
+use Faker;
+
+class SeedController extends Controller
+{
+    public function actionIndex()
+    {
+        $faker = \Faker\Factory::create();
+
+        $user = new Users();
+        $profile = new Profile();
+        for ( $i = 1; $i <= 20; $i++ )
+        {
+            $user->setIsNewRecord(true);
+            $user->user_id = null;
+
+            $user->username = $faker->username;
+            $user->password = '123456';
+
+            if ( $user->save() )
+            {
+                $profile->setIsNewRecord(true);
+                $profile->user_id = null;
+
+                $profile->user_id = $user->user_id;
+                $profile->email = $faker->email;
+                $profile->first_name = $faker->firstName;
+                $profile->last_name = $faker->lastName;
+                $profile->save();
+            }
+        }
+
+
+
+-----------------------------------------------------------------
+
+2.
+
+<?php
+namespace app\commands;
+use Yii;
+use yii\console\Controller;
+
+use yii\db\Command;
+
+class SeedController extends Controller
+{
+       
+    public function actionUsers()
+    {
+        Yii::$app->db->createCommand()->batchInsert('users',
+        [ 
+            'username',
+            'password',            
+            'createdAt' ,
+            'updatedAt'
+            ],
+            [
+
+               ['user1', 'yourhashedpass', new \yii\db\Expression('NOW()'),new \yii\db\Expression('NOW()')],
+['user2', 'yourhashedpass', new \yii\db\Expression('NOW()'),new \yii\db\Expression('NOW()')],
+ 
+                
+        ])->execute();
+ return ExitCode::OK;
+
+    }
+}
+
+
+
+
+php yii seed/users
+
+
+----------------------------------------------------------------------------
+
+
+>> Seeding Database:
+
+3.
+
+https://www.yiiframework.com/extension/yii2-db-seeder
+
+
+composer require tebazil/yii2-db-seeder
+
+OR Add: 
+
+"tebazil/yii2-db-seeder": "*"
+
+
+php yii seed
+php yii seed seederClassName
+php yii seeder/create seederName
+
+
+
+$seeder = new \tebazil\yii2seeder\Seeder();
+$generator = $seeder->getGeneratorConfigurator();
+$faker = $generator->getFakerConfigurator();
+
+$seeder->table('article')->columns([
+    'id', //automatic pk
+    'book_id', //automatic fk
+    'name'=>$faker->firstName,
+    'content'=>$faker->text
+        ])->rowQuantity(30);
+
+
+$seeder->table('book')->columns([
+    'id',
+    'name'=>$faker->text(20),
+])->rowQuantity(30);
+
+$seeder->table('category')->columns([
+    'id',
+    'book_id',
+    'name'=>$faker->text(20),
+    'type'=>$faker->randomElement(['shop','cv','test']),
+])->rowQuantity(30);
+
+$seeder->refill();
+
+------------------------------------------------------------------------
+
+Differences from original library
+
+    With Yii2 Db Seeder you do not need to provide database configuration by default, it uses Yii::$app->db to retrieve connection information. You can optionally provide seeder with a database connection component name. You do that like:
+
+$seeder = new \tebazil\yii2seeder\Seeder('db2');
+
+Yii::$app->db2
+
+------------------------------------------------------------------
+
+
+>> Seeding Data
+
+4.
+
+$pdo = new PDO('mysql:localhost', 'root', 'test');
+$seeder = new \tebazil\dbseeder\Seeder($pdo);
+$generator = $seeder->getGeneratorConfigurator();
+$faker = $generator->getFakerConfigurator();
+
+$seeder->table('article')->columns([
+    'id', //automatic pk
+    'book_id', //automatic fk
+    'name'=>$faker->firstName,
+    'content'=>$faker->text
+        ])->rowQuantity(30);
+
+
+$seeder->table('book')->columns([
+    'id',
+    'name'=>$faker->text(20),
+])->rowQuantity(30);
+
+$seeder->table('category')->columns([
+    'id',
+    'book_id',
+    'name'=>$faker->text(20),
+    'type'=>$faker->randomElement(['shop','cv','test']),
+])->rowQuantity(30);
+
+$seeder->refill();
+
+
+----------------------------------------------------------------------
