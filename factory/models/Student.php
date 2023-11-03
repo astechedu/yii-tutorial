@@ -5,20 +5,20 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "post".
+ * This is the model class for table "student".
  *
  * @property int $id
- * @property string|null $title
- * @property string|null $body
+ * @property string|null $name
+ * @property string|null $phone
  */
-class Post extends \yii\db\ActiveRecord
+class Student extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'post';
+        return 'student';
     }
 
     /**
@@ -27,8 +27,8 @@ class Post extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['body'], 'string'],
-            [['title'], 'string', 'max' => 255],
+            [['name', 'phone'], 'string', 'max' => 255],
+            [['address'], 'string', 'max' => 255],
         ];
     }
 
@@ -39,8 +39,8 @@ class Post extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => 'Title',
-            'body' => 'Body',
+            'name' => 'Name',
+            'phone' => 'Phone',
         ];
     }
 }
